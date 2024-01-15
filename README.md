@@ -23,7 +23,7 @@ Result quality is achieved through the following pipeline, with steps are descri
 
 Most solutions use frame-by-frame readers like moviepy to read frames into the RAM first. Fast alternative could be specialized fast batch loaders, specifically designed for deep learning tasks. Possible solutions are
 
-1. **decord** - fast movie loader working in batches. able to use GPU. According to [the benchmark](https://github.com/bml1g12/benchmarking_video_reading_python) is one of the fastest solutions.
+1. **decord** - fast movie loader working in batches. able to use GPU. According to [the benchmark](https://github.com/bml1g12/benchmarking_video_reading_python) is one of the fastest solutions. See implementation of video reading and writing in [**video_util.py**](https://github.com/hcl14/swap_project/blob/main/video_util.py)
 2. **NVidia DALI** (Links to methods and examples: [1](https://docs.nvidia.com/deeplearning/dali/user-guide/docs/operations/nvidia.dali.fn.readers.video.html), [2](https://docs.nvidia.com/deeplearning/dali/user-guide/docs/operations/nvidia.dali.fn.warp_affine.html), [3](https://github.com/NVIDIA/DALI/blob/main/docs/examples/math/geometric_transforms.ipynb)) uses GPU-accelerated codec and has fastest (to my knowledge) implementation of warp_affine operation which is needed to extract, align and blend faces back.
 
 ## Batch face detection and extraction
@@ -50,11 +50,13 @@ I found the [code](https://github.com/onnx/onnx/issues/2182) which makes batch s
 [postprocessing](https://github.com/geaxgx/depthai_yunet/blob/main/models/build/generate_postproc_onnx.py),
 [pre-and postprocessing functions](https://github.com/Kazuhito00/YuNet-ONNX-TFLite-Sample/blob/main/yunet/yunet_onnx.py#L30).
 
+Also, converted model gets warnings from onnxruntime and is probably inefficient, as computation time is too high.
+
 The class with my attempts is located in the file [**yunet_detector_python_(postprocessing not working).py**](https://github.com/hcl14/swap_project/blob/main/yunet_detector_python_(postprocessing%20not%20working).py). I think the task is doable, but it will be hard to achieve good performance of postprocessing code, as it has a lot of small operations.
 
 ### Attempt 2
 
-Kornia has [this model implemented](https://kornia.readthedocs.io/en/latest/applications/face_detection.html) and seems to support batch input. The resulting batch face detector was implemented in **yunet_detector_kornia.py**. However, testing revealed that even though at the beginning everything seems fine, during execution the detector starts to skip frames and stops detecting faces after some number of batches. The behavior is present with batch > 1, so I had no choice except falling back to batch = 1 for this solution.
+Kornia has [this model implemented](https://kornia.readthedocs.io/en/latest/applications/face_detection.html) and seems to support batch input. The resulting batch face detector was implemented in [**yunet_detector_kornia.py**](https://github.com/hcl14/swap_project/blob/main/yunet_detector_kornia.py). However, testing revealed that even though at the beginning everything seems fine, during execution the detector starts to skip frames and stops detecting faces after some number of batches. The behavior is present with batch > 1, so I had no choice except falling back to batch = 1 for this solution. Further debugging is needed, or chice of another model. Kornia has .pth file in its code, so in theory it is possible to debug and compile good onnx model.
 
 
 
@@ -103,6 +105,18 @@ It is also able to use [GFPGAN as face enhancer](https://github.com/facefusion/f
 
 
 The code uses SimSwap256, with potential to use other models. Some code for them was transferred from `facefusion`.
+
+You can take a look at swapping class in [**swapping_pipeline.py**](https://github.com/hcl14/swap_project/blob/3a0f6dee4c14c28b45481a7004450729fccc27ac/swapping_pipeline.py#L70).
+
+The code computes [mean embedding](https://github.com/hcl14/swap_project/blob/3a0f6dee4c14c28b45481a7004450729fccc27ac/swapping_pipeline.py#L102) of all the source pictures in `./source_frames` (facefusion does it also).
+
+
+Function [`swap_batch`](https://github.com/hcl14/swap_project/blob/3a0f6dee4c14c28b45481a7004450729fccc27ac/swapping_pipeline.py#L135C9-L135C19) swaps target faces using source embedding. It can work with batches, but it is temporarily replaced with single image inference in the loop because of problems with models.
+
+[`enhance_batch` function](https://github.com/hcl14/swap_project/blob/3a0f6dee4c14c28b45481a7004450729fccc27ac/swapping_pipeline.py#L183) should do restoration with GFPGAN and blending with masks, but is not implemented due to the lack of time. The code there applies GFPGAN to entire frame (though it is somewhat good, as restoreformer + gfpgan enhance antire image, so oversharpened swapped face is less visible).
+
+![Swapped face (no gfpgan)](https://github.com/hcl14/swap_project/blob/main/visuals/swapped.png)
+
 
 
 
