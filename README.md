@@ -152,3 +152,9 @@ Not implemented
 ## Writing resulting video
 
 Done very fast via ffmpeg wrapper with custom settings, also audio is copied from the souce clip. [See VideoWriter code](https://github.com/hcl14/swap_project/blob/ed5d6552776d46c01acf35eb3374e5b2a1ddbe38/video_util.py#L93)
+
+
+# Download video resluts:
+
+[**/results**](https://github.com/hcl14/swap_project/blob/main/results)
+
