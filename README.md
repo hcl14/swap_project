@@ -64,3 +64,32 @@ Kornia has [this model implemented](https://kornia.readthedocs.io/en/latest/appl
 
 Face parsing using BiSenet is implemented. Face parsing model has 19 classes which correspond to specific face parts. I has FFHQ alignment, but can be used with different alignment at the beginning.
 
+```
+[(-1, 'unlabeled'), (0, 'background'), (1, 'skin'),
+(2, 'l_brow'), (3, 'r_brow'), (4, 'l_eye'), (5, 'r_eye'),
+(6, 'eye_g (eye glasses)'), (7, 'l_ear'), (8, 'r_ear'), (9, 'ear_r (ear ring)'),
+(10, 'nose'), (11, 'mouth'), (12, 'u_lip'), (13, 'l_lip'),
+(14, 'neck'), (15, 'neck_l (necklace)'), (16, 'cloth'),
+(17, 'hair'), (18, 'hat')])
+```
+
+2 masks are produced from aligned face: mouth mask and face area mask:
+
+```
+masks_mouth = np.zeros(out.shape)
+MOUTH_COLORMAP = np.zeros(19)
+MOUTH_COLORMAP[12] = 255
+
+for idx, color in enumerate(MOUTH_COLORMAP):
+    masks_mouth[out == idx] = color
+
+masks = np.zeros(out.shape)
+MASK_COLORMAP = [0, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 0, 255, 0, 0, 0]
+
+for idx, color in enumerate(MASK_COLORMAP):
+    masks[out == idx] = color
+```
+![Mouth mask](https://github.com/hcl14/swap_project/blob/main/visuals/mask0.png)
+
+![Face area mask](https://github.com/hcl14/swap_project/blob/main/visuals/mask1.png)
+
