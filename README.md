@@ -30,6 +30,12 @@ Most solutions use frame-by-frame readers like moviepy to read frames into the R
 
 Most implementations rely on face detectors which work with one image at time. The idea was to take some fast face detector like Yunet, [benchmark on p.7]( https://link.springer.com/content/pdf/10.1007/s11633-023-1423-y.pdf) and infer it in batches, as detector models are usually lightweight and do not occupy much GPU resources.
 
+This detector detects 5 standard landmarks which can be used to align faces for Insightface, SimSwap and GFPGAN. Aligned face (BGR):
+
+![Aligned face](https://github.com/hcl14/swap_project/blob/main/visuals/face.png)
+
+
+
 ### Attempt 1
 Yunet is implemented in OpenCV [1](https://gist.github.com/UnaNancyOwen/3f06d4a0d04f3a75cc62563aafbac332), unfortunately, the implementation does not allow batch inference.
 
