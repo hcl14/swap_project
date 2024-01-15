@@ -127,7 +127,7 @@ Face swap models work bad with teeth. Blending mouth area is important to reduce
 Currently mouth region mask obtained, but blending not implemented.
 
 
-## **Restoring blended swap via GFPGAN**
+## Restoring blended swap via GFPGAN
 
 GFPGAN can be applied on 512x512 face images, so deeper engineering is needed to re-warp 256x256 SimSwap outputs with simswap alignment into 512x512 GFPGAN outputs with FFHQ alignment. Then careful re-calculation must be done to warp those bigger face images back into original frame. I did that for Alias a 1,5 years ago and my code used NVidia Dali. However, implementing it now seems out of time frame provided.
 
@@ -136,4 +136,15 @@ Also, application of some restoration model (e.g. RealESRGAN) over the entire fr
 ![Swapped face (no gfpgan)](https://github.com/hcl14/swap_project/blob/main/visuals/tmp_no_gfpgan.png)
 ![Swapped face (with gfpgan)](https://github.com/hcl14/swap_project/blob/main/visuals/tmp_gfpgan.png)
 
+Also, the better is landmark detection, the more stable are faces.
 
+
+
+## Blending back enhanced swap using face area mask
+
+Not implemented
+
+
+## Writing resulting video
+
+Done very fast via ffmpeg wrapper with custom settings, also audio is copied from the souce clip. [See VideoWriter code](https://github.com/hcl14/swap_project/blob/ed5d6552776d46c01acf35eb3374e5b2a1ddbe38/video_util.py#L93)
