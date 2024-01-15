@@ -50,7 +50,7 @@ I found the [code](https://github.com/onnx/onnx/issues/2182) which makes batch s
 [postprocessing](https://github.com/geaxgx/depthai_yunet/blob/main/models/build/generate_postproc_onnx.py),
 [pre-and postprocessing functions](https://github.com/Kazuhito00/YuNet-ONNX-TFLite-Sample/blob/main/yunet/yunet_onnx.py#L30).
 
-The class with my attempts is located in the file **yunet_detector_python_(postprocessing not working).py**. I think the task is doable, but it will be hard to achieve good performance of postprocessing code, as it has a lot of small operations.
+The class with my attempts is located in the file [**yunet_detector_python_(postprocessing not working).py**](https://github.com/hcl14/swap_project/blob/main/yunet_detector_python_(postprocessing%20not%20working).py). I think the task is doable, but it will be hard to achieve good performance of postprocessing code, as it has a lot of small operations.
 
 ### Attempt 2
 
