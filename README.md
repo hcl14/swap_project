@@ -93,3 +93,18 @@ for idx, color in enumerate(MASK_COLORMAP):
 
 ![Face area mask](https://github.com/hcl14/swap_project/blob/main/visuals/mask1.png)
 
+
+
+## Face swapping
+
+Parts of the face swapping code were intially inspired by [facefusion](https://github.com/facefusion/facefusion), [because it allows to load multiple different swapping models](https://github.com/facefusion/facefusion/blob/3e93f99eeb3f438dc416b1d82d91db742e791442/facefusion/processors/frame/modules/face_swapper.py#L30), [2](https://github.com/facefusion/facefusion/blob/3e93f99eeb3f438dc416b1d82d91db742e791442/facefusion/face_analyser.py#L27), [having diffrent landmark templates for warping](https://github.com/facefusion/facefusion/blob/3e93f99eeb3f438dc416b1d82d91db742e791442/facefusion/face_helper.py#L11).
+
+It is also able to use [GFPGAN as face enhancer](https://github.com/facefusion/facefusion/blob/3e93f99eeb3f438dc416b1d82d91db742e791442/facefusion/processors/frame/modules/face_enhancer.py#L51), also it [uses face occlusion model and different face parser](https://github.com/facefusion/facefusion/blob/3e93f99eeb3f438dc416b1d82d91db742e791442/facefusion/face_masker.py#L21).
+
+
+The code uses SimSwap256, with potential to use other models. Some code for them was transferred from `facefusion`.
+
+
+
+
+
