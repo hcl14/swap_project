@@ -115,6 +115,8 @@ Function [`swap_batch`](https://github.com/hcl14/swap_project/blob/3a0f6dee4c14c
 
 [`enhance_batch` function](https://github.com/hcl14/swap_project/blob/3a0f6dee4c14c28b45481a7004450729fccc27ac/swapping_pipeline.py#L183) should do restoration with GFPGAN and blending with masks, but is not implemented due to the lack of time. The code there applies GFPGAN to entire frame (though it is somewhat good, as restoreformer + gfpgan enhance antire image, so oversharpened swapped face is less visible).
 
+Swap model has low resolution and is imperfect (see boundary and color artifacts):
+
 ![Swapped face (no gfpgan)](https://github.com/hcl14/swap_project/blob/main/visuals/swapped.png)
 
 Entire pipeline is done in [MainPipeline class](https://github.com/hcl14/swap_project/blob/3a0f6dee4c14c28b45481a7004450729fccc27ac/swapping_pipeline.py#L318)
@@ -132,6 +134,8 @@ Currently mouth region mask obtained, but blending not implemented.
 GFPGAN can be applied on 512x512 face images, so deeper engineering is needed to re-warp 256x256 SimSwap outputs with simswap alignment into 512x512 GFPGAN outputs with FFHQ alignment. Then careful re-calculation must be done to warp those bigger face images back into original frame. I did that for Alias a 1,5 years ago and my code used NVidia Dali. However, implementing it now seems out of time frame provided.
 
 Also, application of some restoration model (e.g. RealESRGAN) over the entire frame increases its sharpness and makes increased sharpness of the face less visible. However, GFPGAN significantly reduces face detail.
+
+Here is frame without and with GFPGAN:
 
 ![Swapped face (no gfpgan)](https://github.com/hcl14/swap_project/blob/main/visuals/tmp_no_gfpgan.png)
 ![Swapped face (with gfpgan)](https://github.com/hcl14/swap_project/blob/main/visuals/tmp_gfpgan.png)
