@@ -185,11 +185,11 @@ class FaceSwapper:
         # (No time to implement)
         # BS = 1
 
-        # Quick and inefficient application of gfpgan
-        cropped_faces, restored_faces, res = self.gfpgan.enhance(np.array(batch_frames[0], dtype=np.uint8), has_aligned=False,
+        # Quick and inefficient application of gfpgan (BGR)
+        cropped_faces, restored_faces, res = self.gfpgan.enhance(np.array(batch_frames[0][...,::-1], dtype=np.uint8), has_aligned=False,
                                                                 only_center_face=False, paste_back=True)
 
-        return res[None,...]
+        return np.ascontiguousarray(res[...,::-1])
 
 
 
@@ -225,7 +225,7 @@ class FaceMasker:
         # we take mouth from original frame
         # and blend back after GFPGAN using mask, calculated on original frame
 
-        batch_faces = torch.tensor(batch_faces0).cuda().float().permute(0,3,1,2)
+        batch_faces = torch.tensor(np.array(batch_faces0)).cuda().float().permute(0,3,1,2)
         batch_faces = F.interpolate(batch_faces, (512, 512))
 
         batch_faces = batch_faces / 255.
@@ -282,6 +282,7 @@ class FaceMasker:
         if len(static_masks.shape) == 3:
             staic_masks = static_masks[None,...]
         self.masks = cv2.resize(self.masks, (self.size,self.size))
+        self.masks_mouth = cv2.resize(self.masks_mouth, (self.size,self.size))
         self.masks = (self.masks[None, None,...]/255.)*static_masks
 
         return self.masks, self.masks_mouth
@@ -352,6 +353,7 @@ class MainPipeline:
         # generating masks from source images -----------------------------
         start = time.time()
         blending_masks, masks_mouth = self.masker.generate_masks(warped_frames, good_frame_indices)
+
         self.mask_generation_time += time.time() - start
 
         # swapping --------------------------------------------------------
@@ -368,15 +370,22 @@ class MainPipeline:
         print(blending_masks.shape)
         print(matrices)
         '''
+
         swapped_faces = swapped_faces.transpose(0,2,3,1)
         blending_masks = blending_masks.transpose(0,2,3,1)
         out_frames = self.batch_warper.warp_back_batch(batch_images, swapped_faces, blending_masks, matrices)
         self.blending_time += time.time() - start
 
+        # if you want without GFPGAN
+        #return out_frames
+
 
         # enhancing (GFPGAN) ----------------------------
         out_frames = self.swapper.enhance_batch(out_frames, batch_images, blending_masks)
 
+
+        '''
+        # with batch 1 it is not needed, need to debug
         # mix out_frames with unprocessed frames
         if len(good_frame_indices) < batch.shape[0]:
             batch[good_frame_indices] = out_frames
@@ -384,9 +393,10 @@ class MainPipeline:
 
         if isinstance(out_frames, np.ndarray):
             out_frames = out_frames.tolist()
+        '''
 
 
-        return out_frames
+        return [out_frames]
 
     def process(self, video_file, output_file):
 
@@ -401,6 +411,7 @@ class MainPipeline:
         for b_idx in tqdm(range(0, len(frames), self.batch_size)):
             batch = frames[b_idx*self.batch_size:(b_idx+1)*self.batch_size]
             out_frames += self.batch_process(batch)
+        Image.fromarray(out_frames[0], mode='RGB').save('tmp.png')
 
         print("detector_time", self.detector_time)
         print("waring_time", self.waring_time)

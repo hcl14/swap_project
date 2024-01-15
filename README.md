@@ -19,6 +19,15 @@ Result quality is achieved through the following pipeline, with steps are descri
 6.  **Blending back enhanced swap using face area mask**
 7.  **Writing resulting video**
 
+## Running code
+
+You need to make onnxruntime-gpu see your cuda. Versions 15-16 need cuda 11.4, the one installed via pip with pytorch does not work. I installed `cudatookit=11.8` in my conda env. Giving you `environments.yml` file.
+
+Also download weights in the model folder, other weights the code should download on its own.
+
+The main pipeline is being run by `swap_models.py`, check `if __name__ == '__main__':`
+
+
 ## Video reading
 
 Most solutions use frame-by-frame readers like moviepy to read frames into the RAM first. Fast alternative could be specialized fast batch loaders, specifically designed for deep learning tasks. Possible solutions are
