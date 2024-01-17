@@ -176,6 +176,8 @@ Weights for Deep3Dfacerecon: [https://drive.google.com/drive/folders/1i0LxjlvzgZ
 
 Currently `infer_deep3facerecon.py` inferences Deep3DfaceRecon and obtains precise landmarks.
 
+![Precise landmarks](https://github.com/hcl14/swap_project/blob/main/visuals/lmk.png)
+
 
 # Download video resluts:
 
