@@ -172,6 +172,10 @@ As you can see on `results/comparison.mp4`, landmarks are not robust and aligned
 
 Currently, I am implementing Deep3DFacerecon approach, will share the results.
 
+Weights for Deep3Dfacerecon: [https://drive.google.com/drive/folders/1i0LxjlvzgZ9Avx1Y4-Imn3yf8JvJu6o7?usp=sharing](https://drive.google.com/drive/folders/1i0LxjlvzgZ9Avx1Y4-Imn3yf8JvJu6o7?usp=sharing). Please put BFM folder to the project root, and BFM\checkpoints folder to ./checkpoints.
+
+Currently `infer_deep3facerecon.py` inferences Deep3DfaceRecon and obtains precise landmarks.
+
 
 # Download video resluts:
 
