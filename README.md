@@ -17,7 +17,8 @@ Result quality is achieved through the following pipeline, with steps are descri
 4.  **Blending mouth area from original face image** to remove mouth artifacts like double teeth
 5.  **Restoring blended swap via GFPGAN** (the only frame consistent face autoencoder model)
 6.  **Blending back enhanced swap using face area mask**
-7.  **Writing resulting video**
+7.  **Using more robust landmarks from DeepFaceRecon model**
+8.  **Writing resulting video**
 
 ## Running code
 
@@ -155,12 +156,21 @@ Also, the better is landmark detection, the more stable are faces.
 
 ## Blending back enhanced swap using face area mask
 
-Implemented. See `results/demo_output_mouth_mask.mp4` and `results/comparison.mp4`.
+![before and after masking mouth](https://github.com/hcl14/swap_project/blob/main/results/comparsion_gfpgan_before_after_mouth_mask.png)
+
+Implemented. See `results/demo_output_mouth_mask.mp4` and `results/comparison.mp4` in [**/results**](https://github.com/hcl14/swap_project/blob/main/results).
 
 
 ## Writing resulting video
 
 Done very fast via ffmpeg wrapper with custom settings, also audio is copied from the souce clip. [See VideoWriter code](https://github.com/hcl14/swap_project/blob/ed5d6552776d46c01acf35eb3374e5b2a1ddbe38/video_util.py#L93)
+
+
+## Using more robust landmarks from DeepFaceRecon model
+
+As you can see on `results/comparison.mp4`, landmarks are not robust and aligned face is shifting wildly. Thanks to the high regularization of GFPGAN, the results are still robust to keep frame consistency. Yet you can see face slightly shifting. To improve that, we can take better landmarks predicted by face mesh recostruction models - either by Mediapipe face mesh, or 3DMM models like [Deep3dFaceRecon](https://github.com/sicxu/Deep3DFaceRecon_pytorch).
+
+Currently, I am implementing Deep3DFacerecon approach, will share the results.
 
 
 # Download video resluts:
