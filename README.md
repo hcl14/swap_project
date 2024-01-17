@@ -155,7 +155,7 @@ Also, the better is landmark detection, the more stable are faces.
 
 ## Blending back enhanced swap using face area mask
 
-Not implemented
+Implemented. See `results/demo_output_mouth_mask.mp4` and `results/comparison.mp4`.
 
 
 ## Writing resulting video

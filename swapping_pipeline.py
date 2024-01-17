@@ -189,7 +189,7 @@ class FaceSwapper:
         cropped_faces, restored_faces, res = self.gfpgan.enhance(np.array(batch_frames[0][...,::-1], dtype=np.uint8), has_aligned=False,
                                                                 only_center_face=False, paste_back=True)
 
-        return np.ascontiguousarray(res[...,::-1])
+        return np.ascontiguousarray(res[...,::-1]), np.ascontiguousarray(restored_faces[0][...,::-1])
 
 
 
@@ -237,7 +237,9 @@ class FaceMasker:
 
         masks_mouth = np.zeros(out.shape)
         MOUTH_COLORMAP = np.zeros(19)
+        MOUTH_COLORMAP[11] = 255
         MOUTH_COLORMAP[12] = 255
+        MOUTH_COLORMAP[13] = 255
 
         for idx, color in enumerate(MOUTH_COLORMAP):
             masks_mouth[out == idx] = color
@@ -364,12 +366,17 @@ class MainPipeline:
 
         # blending swapped faces back ----------------------------
         start = time.time()
-        '''
+
         print(batch_images.shape)
         print(swapped_faces.shape)
         print(blending_masks.shape)
-        print(matrices)
-        '''
+        print(masks_mouth.shape)
+        print(warped_frames[0].shape)
+        # replace mouth with mask
+
+        masks_mouth0 = masks_mouth/255.
+        swapped_faces = swapped_faces*(1- masks_mouth0) + warped_frames[0][None,...].transpose(0,3,1,2)*masks_mouth0
+
 
         swapped_faces = swapped_faces.transpose(0,2,3,1)
         blending_masks = blending_masks.transpose(0,2,3,1)
@@ -381,7 +388,7 @@ class MainPipeline:
 
 
         # enhancing (GFPGAN) ----------------------------
-        out_frames = self.swapper.enhance_batch(out_frames, batch_images, blending_masks)
+        out_frames, restored_faces = self.swapper.enhance_batch(out_frames, batch_images, blending_masks)
 
 
         '''
@@ -396,7 +403,7 @@ class MainPipeline:
         '''
 
 
-        return [out_frames]
+        return [out_frames], restored_faces, masks_mouth
 
     def process(self, video_file, output_file):
 
@@ -408,9 +415,14 @@ class MainPipeline:
 
         # processing video in batches --------------------------------
         out_frames = []
+        out_faces = []
+        out_masks = []
         for b_idx in tqdm(range(0, len(frames), self.batch_size)):
             batch = frames[b_idx*self.batch_size:(b_idx+1)*self.batch_size]
-            out_frames += self.batch_process(batch)
+            out_frames0, faces, masks_mouth = self.batch_process(batch)
+            out_frames += out_frames0
+            out_faces.append(faces)
+            out_masks.append(cv2.resize(np.stack([masks_mouth]*3, axis=-1),(512,512)))
         Image.fromarray(out_frames[0], mode='RGB').save('tmp.png')
 
         print("detector_time", self.detector_time)
@@ -426,6 +438,13 @@ class MainPipeline:
         writer.imwrite(out_frames)
         writer.close()
         print("Writing video took", time.time() - start)
+
+        out_frames_compare = [np.hstack([face, mask]).astype(np.uint8) for face, mask in zip(out_faces, out_masks)]
+        #out_frames_compare = [face.astype(np.uint8) for face, mask in zip(out_faces, out_masks)]
+
+        writer = VideoWriterFFmpeg('faces.mp4', audio_source=video_file, resolution=(512, 1024), fps=v.fps, pix_fmt='rgb24') # 2 sec
+        writer.imwrite(out_frames_compare)
+        writer.close()
 
 
 
